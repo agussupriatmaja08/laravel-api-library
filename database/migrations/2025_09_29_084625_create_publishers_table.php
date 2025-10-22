@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('website')->nullable(); // Website penerbit
             $table->timestamps();
         });
-
     }
 
     /**

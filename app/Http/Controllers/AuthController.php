@@ -27,6 +27,8 @@ class AuthController extends Controller
             $client = [
                 'client_id' => env('PASSPORT_PASSWORD_CLIENT_ID'),
                 'client_secret' => env('PASSPORT_PASSWORD_CLIENT_SECRET'),
+                // 'client_id' => '0199e06d-bdd2-71b4-9565-d12c051ec4e7',
+                // 'client_secret' => '4nidsqES6LgYZDwNx6zJq0HxsJ9LbdNS4bcoDQyA',
             ];
 
             $response = Http::asForm()->post(config('app.url') . '/oauth/token', [
@@ -38,12 +40,12 @@ class AuthController extends Controller
                 'scope' => '*',
             ]);
 
-          if ($response->failed()) {
+            if ($response->failed()) {
                 // TANGKAP BODY RESPONS MENTAH (RAW BODY)
-                $rawError = $response->body(); 
-                
+                $rawError = $response->body();
+
                 return response()->json([
-                    'message' => 'Gagal mendapatkan token dari Passport. (Cek error raw)', 
+                    'message' => 'Gagal mendapatkan token dari Passport. (Cek error raw)',
                     'error_raw_body' => $rawError, // Menampilkan body error mentah
                     'error_json' => $response->json() // Tetap menampilkan json (yang nilainya null)
                 ], 500);
@@ -56,12 +58,10 @@ class AuthController extends Controller
                 'token_data' => $response->json(),
                 'token_type' => 'Bearer',
             ], 200);
-
         } catch (ValidationException $e) {
             return response()->json(['message' => 'Gagal login', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Terjadi kesalahan server', 'error' => $e->getMessage()], 500);
         }
     }
-
 }

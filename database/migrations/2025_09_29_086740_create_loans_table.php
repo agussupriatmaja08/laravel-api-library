@@ -14,8 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->date('borrow_date');
-            $table->date('return_date')->nullable(); // Tanggal kembali
+            $table->date('returned_at')->nullable(); // Tanggal kembali
+            $table->date('loaned_at'); // pinjam
             $table->enum('status', ['borrowed', 'returned'])->default('borrowed'); // Status
             $table->timestamps();
         });

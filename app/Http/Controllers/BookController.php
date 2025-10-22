@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -17,14 +18,13 @@ class BookController extends Controller
         }
     }
 
-    public function detail($id){
+    public function detail($id)
+    {
         try {
             $book = Book::with(['author', 'publisher'])->where('id', $id)->get();
             return response()->json($book, 200);
-
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to retrieve books', 'error' => $e->getMessage()], 500);
-
         }
     }
 
@@ -40,6 +40,8 @@ class BookController extends Controller
                 'isbn' => 'required|string|unique:books,isbn|max:20',
                 'stock' => 'nullable|integer|min:0',
             ]);
+            $validatedData['user_id'] = $request->user()->id;
+
 
             $book = Book::create($validatedData);
 
@@ -62,6 +64,11 @@ class BookController extends Controller
 
             if (!$book) {
                 return response()->json(['message' => "book not found"], 404);
+            }
+            if ($book->user_id !== $request->user()->id) {
+                return response()->json([
+                    'message' => 'Unauthorized: You are not the owner of this book.'
+                ], 403);
             }
 
             $validatedData = $request->validate([
@@ -92,6 +99,11 @@ class BookController extends Controller
 
             if (!$book) {
                 return response()->json(['message' => 'book not found'], 404);
+            }
+            if ($book->user_id !== Auth::id()) {
+                return response()->json([
+                    'message' => 'Unauthorized: You are not the owner of this book.'
+                ], 403);
             }
 
             $book->delete();
